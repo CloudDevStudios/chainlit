@@ -39,7 +39,7 @@ class MessageBase(ABC):
             if self.id:
                 msg_dict["id"] = self.id
 
-        if not "id" in msg_dict:
+        if "id" not in msg_dict:
             self.temp_id = uuid.uuid4().hex
             msg_dict["tempId"] = self.temp_id
 
@@ -256,21 +256,16 @@ class ErrorMessage(MessageBase):
         Return the ID of the message.
         """
         trace_event("send_error_message")
-        id = super().send()
-
-        return id
+        return super().send()
 
 
 class AskMessageBase(MessageBase):
     def remove(self):
-        removed = super().remove()
-        if removed:
-            sdk = get_sdk()
-
-            if not sdk:
+        if removed := super().remove():
+            if sdk := get_sdk():
+                sdk.clear_ask()
+            else:
                 return
-
-            sdk.clear_ask()
 
 
 class AskUserMessage(AskMessageBase):
@@ -389,9 +384,7 @@ class AskFileMessage(AskMessageBase):
             timeout=self.timeout,
         )
 
-        res = sdk.send_ask_user(msg_dict, spec, self.raise_on_timeout)
-
-        if res:
+        if res := sdk.send_ask_user(msg_dict, spec, self.raise_on_timeout):
             return AskFileResponse(**res)
         else:
             return None

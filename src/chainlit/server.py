@@ -65,7 +65,7 @@ inject_html_tags()
 @app.route("/<path:path>")
 def serve(path):
     """Serve the UI."""
-    if path != "" and os.path.exists(app.static_folder + "/" + path):
+    if path != "" and os.path.exists(f"{app.static_folder}/{path}"):
         return send_from_directory(app.static_folder, path)
     else:
         return send_from_directory(app.static_folder, "_index.html")
@@ -140,9 +140,7 @@ def connect():
             for key in config.user_env:
                 if key not in user_env:
                     trace_event("missing_user_env")
-                    raise ConnectionRefusedError(
-                        "Missing user environment variable: " + key
-                    )
+                    raise ConnectionRefusedError(f"Missing user environment variable: {key}")
 
     access_token = request.headers.get("Authorization")
     if not config.public and not access_token:
@@ -216,8 +214,7 @@ def disconnect():
     if request.sid in sessions:
         # Clean up the session
         session = sessions.pop(request.sid)
-        task = session.get("task")
-        if task:
+        if task := session.get("task"):
             # If a background task is running, kill it
             task.kill()
 
@@ -234,9 +231,7 @@ def stop():
     if not session:
         return
 
-    task = session.get("task")
-
-    if task:
+    if task := session.get("task"):
         task.kill()
         session["task"] = None
 
@@ -251,10 +246,10 @@ def stop():
 def need_session(id: str):
     """Return the session with the given id."""
 
-    session = sessions.get(id)
-    if not session:
+    if session := sessions.get(id):
+        return session
+    else:
         raise ValueError("Session not found")
-    return session
 
 
 def process_message(session: Session, author: str, input_str: str):
@@ -274,8 +269,7 @@ def process_message(session: Session, author: str, input_str: str):
                 }
             )
 
-        langchain_agent = session.get("agent")
-        if langchain_agent:
+        if langchain_agent := session.get("agent"):
             # If a langchain agent is available, run it
             if config.lc_run:
                 # If the developer provided a custom run function, use it
@@ -328,8 +322,7 @@ def on_message(body):
 
 def process_action(session: Session, action: Action):
     __chainlit_sdk__ = Chainlit(session)
-    callback = config.action_callbacks.get(action.name)
-    if callback:
+    if callback := config.action_callbacks.get(action.name):
         callback(action)
     else:
         logger.warning("No callback found for action %s", action.name)

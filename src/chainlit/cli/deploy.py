@@ -23,10 +23,7 @@ def get_gitignore_patterns():
 
 
 def is_excluded(file_path, patterns):
-    for pattern in patterns:
-        if fnmatch.fnmatch(file_path, pattern):
-            return True
-    return False
+    return any(fnmatch.fnmatch(file_path, pattern) for pattern in patterns)
 
 
 def create_tar_gz_archive(archive_path, source_dir):

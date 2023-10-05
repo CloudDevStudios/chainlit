@@ -69,8 +69,8 @@ def validate_token(token):
 
     :param token:
     """
-    jwks_url = "https://{}/.well-known/jwks.json".format(AUTH0_DOMAIN)
-    issuer = "https://{}/".format(AUTH0_DOMAIN)
+    jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+    issuer = f"https://{AUTH0_DOMAIN}/"
     sv = AsymmetricSignatureVerifier(jwks_url)
     tv = TokenVerifier(signature_verifier=sv, issuer=issuer, audience=AUTH0_CLIENT_ID)
     return tv.verify(token)
@@ -101,7 +101,7 @@ def login():
         "audience": "chainlit-cloud",
     }
     device_code_response = requests.post(
-        "https://{}/oauth/device/code".format(AUTH0_DOMAIN), data=device_code_payload
+        f"https://{AUTH0_DOMAIN}/oauth/device/code", data=device_code_payload
     )
 
     if device_code_response.status_code != 200:
@@ -122,7 +122,7 @@ def login():
     authenticated = False
     while not authenticated:
         token_response = requests.post(
-            "https://{}/oauth/token".format(AUTH0_DOMAIN), data=token_payload
+            f"https://{AUTH0_DOMAIN}/oauth/token", data=token_payload
         )
 
         token_data = token_response.json()

@@ -7,8 +7,7 @@ prompt_template = "What is a good name for a company that makes {product}?"
 @cl.langchain_factory
 def main():
     llm = OpenAI(temperature=0)
-    chain = LLMChain(llm=llm, prompt=PromptTemplate.from_template(prompt_template))
-    return chain
+    return LLMChain(llm=llm, prompt=PromptTemplate.from_template(prompt_template))
 
 
 @cl.langchain_postprocess

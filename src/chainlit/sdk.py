@@ -90,10 +90,6 @@ class Chainlit:
                         "content": res["content"],
                     }
                     self.client.create_message(res_msg)
-                elif spec.type == "file":
-                    # TODO: upload file to S3
-                    pass
-
             self.clear_ask()
             return res
         except TimeoutError as e:
@@ -153,16 +149,8 @@ def get_sdk() -> Union[Chainlit, None]:
     """
     attr = "__chainlit_sdk__"
     candidates = [i[0].f_locals.get(attr) for i in inspect.stack()]
-    sdk = None
-    for candidate in candidates:
-        if candidate:
-            sdk = candidate
-            break
-    return sdk
+    return next((candidate for candidate in candidates if candidate), None)
 
 
 def get_emit():
-    sdk = get_sdk()
-    if sdk:
-        return sdk.emit
-    return None
+    return sdk.emit if (sdk := get_sdk()) else None

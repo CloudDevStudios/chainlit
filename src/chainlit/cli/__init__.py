@@ -122,7 +122,6 @@ def chainlit_run(target, watch, headless, debug, ci, host, port):
 def chainlit_deploy(target, args=None, **kwargs):
     trace_event("chainlit deploy")
     raise NotImplementedError("Deploy is not yet implemented")
-    deploy(target)
 
 
 @cli.command("hello")

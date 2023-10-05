@@ -19,7 +19,7 @@ class ChangeHandler(FileSystemEventHandler):
 
         file_ext = os.path.splitext(event.src_path)[1]
 
-        if not file_ext in [".py", ".md"]:
+        if file_ext not in [".py", ".md"]:
             return
 
         # Check if the file was modified more than 0.5 seconds ago

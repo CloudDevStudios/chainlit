@@ -25,9 +25,7 @@ import inspect
 import os
 
 
-env_found = load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"))
-
-if env_found:
+if env_found := load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env")):
     logger.info("Loaded .env file")
 
 
@@ -48,9 +46,7 @@ def wrap_user_function(user_function: Callable, with_task=False) -> Callable:
         user_function_params = list(inspect.signature(user_function).parameters.keys())
 
         # Create a dictionary of parameter names and their corresponding values from *args
-        params_values = {
-            param_name: arg for param_name, arg in zip(user_function_params, args)
-        }
+        params_values = dict(zip(user_function_params, args))
 
         if with_task and sdk:
             sdk.task_start()

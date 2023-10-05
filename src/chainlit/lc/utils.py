@@ -10,11 +10,7 @@ def run_langchain_agent(agent: Any, input_str: str):
     else:
         raw_res = agent(input_str)
 
-    if hasattr(agent, "output_keys"):
-        output_key = agent.output_keys[0]
-    else:
-        output_key = None
-
+    output_key = agent.output_keys[0] if hasattr(agent, "output_keys") else None
     return raw_res, output_key
 
 

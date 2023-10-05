@@ -59,11 +59,10 @@ class LocalElement(Element):
     def persist(self, client: BaseClient, for_id: str = None):
         if not self.content:
             raise ValueError("Must provide content")
-        url = client.upload_element(content=self.content, mime=None)
-        if url:
+        if url := client.upload_element(content=self.content, mime=None):
             size = getattr(self, "size", None)
             language = getattr(self, "language", None)
-            element = client.create_element(
+            return client.create_element(
                 name=self.name,
                 url=url,
                 type=self.type,
@@ -72,7 +71,6 @@ class LocalElement(Element):
                 language=language,
                 for_id=for_id,
             )
-            return element
 
 
 @dataclass
@@ -91,7 +89,7 @@ class RemoteElement(Element, RemoteElementBase):
     def persist(self, client: BaseClient, for_id: str = None):
         size = getattr(self, "size", None)
         language = getattr(self, "language", None)
-        element = client.create_element(
+        return client.create_element(
             name=self.name,
             url=self.url,
             type=self.type,
@@ -100,7 +98,6 @@ class RemoteElement(Element, RemoteElementBase):
             language=language,
             for_id=for_id,
         )
-        return element
 
 
 @dataclass
@@ -169,20 +166,17 @@ class Pdf(Element):
             url = self.url
 
         if url:
-            element = client.create_element(
+            return client.create_element(
                 name=self.name,
                 url=url,
                 type=self.type,
                 display=self.display,
                 for_id=for_id,
             )
-            return element
 
     def __post_init__(self):
         if self.path:
             with open(self.path, "rb") as f:
                 self.content = f.read()
-        elif self.content or self.url:
-            pass  # do nothing here
-        else:
+        elif not self.content and not self.url:
             raise ValueError("Must provide either path, content or url")

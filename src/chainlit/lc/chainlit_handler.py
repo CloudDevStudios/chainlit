@@ -56,17 +56,14 @@ class ChainlitCallbackHandler(BaseCallbackHandler):
         self.stream_per_session[session_id] = streamed_message
 
     def send_token(self, token: str):
-        streamed_message = self.get_streamed_message()
-        if streamed_message:
+        if streamed_message := self.get_streamed_message():
             streamed_message.stream_token(token)
 
     def end_stream(self):
-        sdk = get_sdk()
-        if not sdk:
+        if sdk := get_sdk():
+            del self.stream_per_session[sdk.session["id"]]
+        else:
             return
-
-        session_id = sdk.session["id"]
-        del self.stream_per_session[session_id]
 
     def add_in_sequence(self, name: str):
         sdk = get_sdk()
@@ -148,10 +145,7 @@ class ChainlitCallbackHandler(BaseCallbackHandler):
         indent = len(sequence) if sequence else 0
 
         if sequence:
-            if config.lc_rename:
-                author = config.lc_rename(sequence[-1])
-            else:
-                author = sequence[-1]
+            author = config.lc_rename(sequence[-1]) if config.lc_rename else sequence[-1]
         else:
             author = config.chatbot_name
 
@@ -172,9 +166,7 @@ class ChainlitCallbackHandler(BaseCallbackHandler):
             self.end_stream()
             return
 
-        streamed_message = self.get_streamed_message()
-
-        if streamed_message:
+        if streamed_message := self.get_streamed_message():
             streamed_message.prompt = prompt
             streamed_message.llm_settings = llm_settings
             streamed_message.send()
@@ -224,8 +216,7 @@ class ChainlitCallbackHandler(BaseCallbackHandler):
         self.add_message("")
 
     def on_chain_end(self, outputs: Dict[str, Any], **kwargs: Any) -> None:
-        output_key = list(outputs.keys())[0]
-        if output_key:
+        if output_key := list(outputs.keys())[0]:
             prompt = self.consume_last_prompt()
             self.add_message(outputs[output_key], prompt)
         self.pop_sequence()
